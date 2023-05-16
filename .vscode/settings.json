@@ -4,5 +4,12 @@
         ".pytest_cache": true,
         ".ruff_cache": true,
         ".coverage": true
-    }
+    },
+    "python.testing.pytestArgs": [
+        "tests",
+        "--cov=src/kittens_answers_core",
+        "--cov-report=html"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
