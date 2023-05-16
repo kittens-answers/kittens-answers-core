@@ -18,6 +18,7 @@ coverage = "^7.2.5"
 pytest-cov = "^4.0.0"
 faker = "^18.7.0"
 ruff = "^0.0.267"
+nox = "^2023.4.22"
 
 [build-system]
 requires = ["poetry-core"]
