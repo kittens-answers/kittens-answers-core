@@ -1,11 +1,11 @@
 import pytest
 
-from kittens_answers_core.infrastructure.repository.abc_user import (
+from kittens_answers_core.infrastructure.repository.user.base import (
     UserAlreadyExistException,
     UserNotFoundException,
     UserRepository,
 )
-from kittens_answers_core.infrastructure.repository.memory_user import (
+from kittens_answers_core.infrastructure.repository.user.memory import (
     MemoryUserRepository,
 )
 

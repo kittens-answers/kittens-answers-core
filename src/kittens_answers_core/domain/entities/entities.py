@@ -25,7 +25,7 @@ class Options:
 
 
 @dataclass(frozen=True, kw_only=True)
-class Question(IDMixin, CreatedByMixin):
+class QuestionWithoutId(CreatedByMixin):
     text: str
     question_type: QuestionType
     options: Options
@@ -46,6 +46,12 @@ class Question(IDMixin, CreatedByMixin):
                     raise ValueError("options is inconsistent")
                 if len(self.options.options) != len(self.options.extra_options):
                     raise ValueError("options is inconsistent")
+
+
+@dataclass(frozen=True, kw_only=True)
+class Question(IDMixin, QuestionWithoutId):
+    def __post_init__(self):
+        QuestionWithoutId.__post_init__(self)
 
 
 @dataclass(frozen=True, kw_only=True)

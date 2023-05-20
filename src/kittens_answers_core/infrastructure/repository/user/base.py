@@ -1,6 +1,6 @@
 import abc
 
-from ...domain.entities.entities import User
+from ....domain.entities.entities import User
 
 
 class UserRepository(abc.ABC):  # pragma: no cover

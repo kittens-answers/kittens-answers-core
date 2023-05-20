@@ -1,11 +1,13 @@
 import abc
 from contextlib import AbstractAsyncContextManager
 
-from ..repository.abc_user import UserRepository
+from ..repository.question.base import QuestionRepository
+from ..repository.user.base import UserRepository
 
 
 class UoW(AbstractAsyncContextManager):  # pragma: no cover
     user_repository: UserRepository
+    question_repository: QuestionRepository
 
     @abc.abstractmethod
     async def commit(self):

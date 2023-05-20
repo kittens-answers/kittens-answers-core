@@ -1,11 +1,7 @@
 from datetime import datetime
 
-from ...domain.entities.entities import User
-from ...infrastructure.repository.abc_user import (
-    UserAlreadyExistException,
-    UserNotFoundException,
-    UserRepository,
-)
+from ....domain.entities.entities import User
+from .base import UserAlreadyExistException, UserNotFoundException, UserRepository
 
 
 class MemoryUserRepository(UserRepository):

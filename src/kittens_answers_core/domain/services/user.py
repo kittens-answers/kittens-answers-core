@@ -1,4 +1,4 @@
-from ...infrastructure.repository.abc_user import UserNotFoundException
+from ...infrastructure.repository.user.base import UserNotFoundException
 from ...infrastructure.unit_of_work.abc_uow import UoW
 
 
