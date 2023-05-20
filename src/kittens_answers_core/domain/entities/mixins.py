@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from kittens_answers_core.domain.entities.entities import Mark, User
+    from .entities import Mark, User
 
 
 @dataclass(frozen=True, kw_only=True)

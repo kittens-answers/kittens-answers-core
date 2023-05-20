@@ -1,13 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Generic, Mapping, TypeAlias, TypeVar
 
-from kittens_answers_core.domain.entities.enums import QuestionType
-from kittens_answers_core.domain.entities.mixins import (
-    CreatedByMixin,
-    IDMixin,
-    MarkMixin,
-    TimeStampMixin,
-)
+from .enums import QuestionType
+from .mixins import CreatedByMixin, IDMixin, MarkMixin, TimeStampMixin
 
 
 @dataclass(frozen=True, kw_only=True)
