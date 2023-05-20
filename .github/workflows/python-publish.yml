@@ -1,9 +1,14 @@
-name: Upload Python Package
+name: Release to PyPi
 
 on:
   release:
     types:
       - created
+  workflow_call:
+    secrets:
+      PYPI_TOKEN:
+        description: 'PyPi token'
+        required: true
 
 permissions:
   contents: read
@@ -15,12 +20,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install poetry
+      run: pipx install poetry
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+        cache: 'poetry'
     - name: Publish package
       env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
