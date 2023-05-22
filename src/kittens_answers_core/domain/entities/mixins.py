@@ -6,7 +6,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from .entities import Mark, User
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class IDMixin:
     id: int
 
@@ -15,16 +15,16 @@ class IDMixin:
             raise ValueError("id must be positive")
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class MarkMixin:
-    marks: tuple["Mark"] = field(default_factory=tuple)
+    marks: set["Mark"] = field(default_factory=set)
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class CreatedByMixin:
     created_by: "User"
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class TimeStampMixin:
     time_stamp: datetime

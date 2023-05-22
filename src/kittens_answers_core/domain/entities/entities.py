@@ -5,13 +5,16 @@ from .enums import QuestionType
 from .mixins import CreatedByMixin, IDMixin, MarkMixin, TimeStampMixin
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class User(IDMixin, TimeStampMixin):
     public_id: str
 
     def __post_init__(self):
         if not self.public_id:
             raise ValueError("public id can not be empty")
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -24,8 +27,8 @@ class Options:
             raise ValueError("options or extra options can not be empty")
 
 
-@dataclass(frozen=True, kw_only=True)
-class QuestionWithoutId(CreatedByMixin):
+@dataclass(kw_only=True)
+class Question(IDMixin, CreatedByMixin):
     text: str
     question_type: QuestionType
     options: Options
@@ -47,20 +50,20 @@ class QuestionWithoutId(CreatedByMixin):
                 if len(self.options.options) != len(self.options.extra_options):
                     raise ValueError("options is inconsistent")
 
-
-@dataclass(frozen=True, kw_only=True)
-class Question(IDMixin, QuestionWithoutId):
-    def __post_init__(self):
-        QuestionWithoutId.__post_init__(self)
+    def __hash__(self) -> int:
+        return self.id
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class Mark:
     user: User
     is_correct: bool
 
+    def __hash__(self) -> int:
+        return self.user.id
 
-@dataclass(frozen=True, kw_only=True)
+
+@dataclass(kw_only=True)
 class OneAnswer(IDMixin, MarkMixin):
     value: str
 
@@ -68,8 +71,11 @@ class OneAnswer(IDMixin, MarkMixin):
         if not self.value:
             raise ValueError("answer can not be empty")
 
+    def __hash__(self) -> int:
+        return self.id
 
-@dataclass(frozen=True, kw_only=True)
+
+@dataclass(kw_only=True)
 class ManyAnswer(IDMixin, MarkMixin):
     value: frozenset[str]
 
@@ -79,8 +85,11 @@ class ManyAnswer(IDMixin, MarkMixin):
         if len(self.value) < 1:
             raise ValueError("many answer must be one or more long")
 
+    def __hash__(self) -> int:
+        return self.id
 
-@dataclass(frozen=True, kw_only=True)
+
+@dataclass(kw_only=True)
 class OrderAnswer(IDMixin, MarkMixin):
     value: tuple[str, ...]
 
@@ -90,8 +99,11 @@ class OrderAnswer(IDMixin, MarkMixin):
         if len(self.value) < 2:
             raise ValueError("order answer must be two or more long")
 
+    def __hash__(self) -> int:
+        return self.id
 
-@dataclass(frozen=True, kw_only=True)
+
+@dataclass(kw_only=True)
 class MatchAnswer(IDMixin, MarkMixin):
     value: Mapping[str, str]
 
@@ -100,6 +112,9 @@ class MatchAnswer(IDMixin, MarkMixin):
             raise ValueError("answer can not be empty")
         if len(self.value) < 2:
             raise ValueError("match answer must be two or more long")
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 Answer: TypeAlias = OneAnswer | ManyAnswer | OrderAnswer | MatchAnswer
