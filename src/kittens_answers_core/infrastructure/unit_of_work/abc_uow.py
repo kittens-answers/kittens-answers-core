@@ -1,6 +1,7 @@
 import abc
 from contextlib import AbstractAsyncContextManager
 
+from ..repository.answer.base import AnswerRepository
 from ..repository.question.base import QuestionRepository
 from ..repository.user.base import UserRepository
 
@@ -8,6 +9,7 @@ from ..repository.user.base import UserRepository
 class UoW(AbstractAsyncContextManager):  # pragma: no cover
     user_repository: UserRepository
     question_repository: QuestionRepository
+    answer_repository: AnswerRepository
 
     @abc.abstractmethod
     async def commit(self):

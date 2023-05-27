@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from ....domain.entities.entities import User
 from .base import UserAlreadyExistException, UserNotFoundException, UserRepository
 
@@ -30,7 +28,7 @@ class MemoryUserRepository(UserRepository):
         try:
             user = await self.get_by_public_id(public_id=public_id)
         except UserNotFoundException:
-            user = User(id=self.new_id(), public_id=public_id, time_stamp=datetime.now())
+            user = User(id=self.new_id(), public_id=public_id)
             self._data.add(user)
             return user
         raise UserAlreadyExistException

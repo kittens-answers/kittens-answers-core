@@ -1,49 +1,31 @@
 from copy import deepcopy
-from typing import Mapping
 
-from ....domain.entities.entities import (
-    Answer,
-    ManyAnswer,
-    Mark,
-    MatchAnswer,
-    OneAnswer,
-    Options,
-    OrderAnswer,
-    Question,
-    QuestionType,
-    QuestionWithAnswer,
-    User,
+from ....domain.entities.entities import Question, QuestionType, User
+from .base import (
+    QuestionAlreadyExistException,
+    QuestionNotFoundException,
+    QuestionRepository,
 )
-from .base import AnswerNotFoundException, QuestionRepository
 
 
 class MemoryQuestionRepository(QuestionRepository):
     def __init__(self) -> None:
-        self._data: set[QuestionWithAnswer[Answer]] = set()
+        self._data: set[Question] = set()
 
-    async def list(self) -> tuple[QuestionWithAnswer[Answer]]:
+    async def list(self) -> tuple[Question, ...]:
         return tuple(self._data)
 
     def new_question_id(self):
         if self._data:
-            return max([item.question.id for item in self._data]) + 1
+            return max([item.id for item in self._data]) + 1
         else:
             return 1
 
-    def new_answer_id(self):
-        if self._data:
-            return max([item.answer.id for item in self._data]) + 1
-        else:
-            return 1
-
-    async def get_by_questions_id(self, question_id: int) -> tuple[QuestionWithAnswer[Answer]]:
-        return tuple(deepcopy(item) for item in self._data if item.question.id == question_id)
-
-    async def get_by_answer_id(self, answer_id: int) -> QuestionWithAnswer[Answer]:
+    async def get_by_id(self, question_id: int) -> Question:
         for item in self._data:
-            if item.answer.id == answer_id:
+            if item.id - -question_id:
                 return deepcopy(item)
-        raise AnswerNotFoundException
+        raise QuestionNotFoundException
 
     async def create(
         self,
@@ -52,57 +34,30 @@ class MemoryQuestionRepository(QuestionRepository):
         question_type: QuestionType,
         options: frozenset[str],
         extra_options: frozenset[str],
-        answer: str | frozenset[str] | tuple[str, ...] | Mapping[str, str],
-        is_correct: bool,
-    ) -> QuestionWithAnswer:
-        def is_equal(item: QuestionWithAnswer[Answer]) -> bool:
-            return all(
-                (
-                    question_text == item.question.text,
-                    question_type == item.question.question_type,
-                    item.question.options == Options(options=options, extra_options=extra_options),
-                    answer == item.answer.value,
-                )
-            )
+    ) -> Question:
+        question = Question(
+            id=self.new_question_id(),
+            created_by=user,
+            text=question_text,
+            question_type=question_type,
+            options=options,
+            extra_options=extra_options,
+        )
+        if question.__hash__() in (item.__hash__() for item in self._data):
+            raise QuestionAlreadyExistException
+        self._data.add(question)
+        return deepcopy(question)
 
+    async def get(
+        self, question_text: str, question_type: QuestionType, options: frozenset[str], extra_options: frozenset[str]
+    ) -> Question:
         for item in self._data:
-            if is_equal(item):
-                mark = Mark(user=user, is_correct=is_correct)
-                item.answer.marks.add(mark)
+            if (
+                item.text == question_text
+                and item.question_type == question_type
+                and item.options == options
+                and item.extra_options == extra_options
+            ):
                 return deepcopy(item)
         else:
-            question = Question(
-                id=self.new_question_id(),
-                created_by=user,
-                text=question_text,
-                question_type=question_type,
-                options=Options(options=options, extra_options=extra_options),
-            )
-            match answer:
-                case str():
-                    _answer = OneAnswer(
-                        marks=set((Mark(user=user, is_correct=is_correct),)),
-                        id=self.new_answer_id(),
-                        value=answer,
-                    )
-                case tuple():
-                    _answer = OrderAnswer(
-                        marks=set((Mark(user=user, is_correct=is_correct),)),
-                        id=self.new_answer_id(),
-                        value=answer,
-                    )
-                case frozenset():
-                    _answer = ManyAnswer(
-                        marks=set((Mark(user=user, is_correct=is_correct),)),
-                        id=self.new_answer_id(),
-                        value=answer,
-                    )
-                case Mapping():
-                    _answer = MatchAnswer(
-                        marks=set((Mark(user=user, is_correct=is_correct),)),
-                        id=self.new_answer_id(),
-                        value=answer,
-                    )
-            qa = QuestionWithAnswer(question=question, answer=_answer)
-            self._data.add(qa)
-            return deepcopy(qa)
+            raise QuestionNotFoundException

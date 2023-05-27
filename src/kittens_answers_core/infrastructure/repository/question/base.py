@@ -1,20 +1,15 @@
 import abc
-from typing import Mapping
 
-from ....domain.entities.entities import Answer, QuestionType, QuestionWithAnswer, User
+from ....domain.entities.entities import Question, QuestionType, User
 
 
 class QuestionRepository(abc.ABC):  # pragma: no cover
     @abc.abstractmethod
-    async def get_by_questions_id(self, question_id: int) -> tuple[QuestionWithAnswer[Answer]]:
+    async def get_by_id(self, question_id: int) -> Question:
         ...
 
     @abc.abstractmethod
-    async def get_by_answer_id(self, answer_id: int) -> QuestionWithAnswer[Answer]:
-        ...
-
-    @abc.abstractmethod
-    async def list(self) -> tuple[QuestionWithAnswer[Answer]]:
+    async def list(self) -> tuple[Question, ...]:
         ...
 
     @abc.abstractmethod
@@ -25,9 +20,17 @@ class QuestionRepository(abc.ABC):  # pragma: no cover
         question_type: QuestionType,
         options: frozenset[str],
         extra_options: frozenset[str],
-        answer: str | frozenset[str] | tuple[str, ...] | Mapping[str, str],
-        is_correct: bool,
-    ) -> QuestionWithAnswer[Answer]:
+    ) -> Question:
+        ...
+
+    @abc.abstractmethod
+    async def get(
+        self,
+        question_text: str,
+        question_type: QuestionType,
+        options: frozenset[str],
+        extra_options: frozenset[str],
+    ) -> Question:
         ...
 
 
@@ -40,8 +43,4 @@ class QuestionNotFoundException(QuestionRepositoryException):
 
 
 class QuestionAlreadyExistException(QuestionRepositoryException):
-    ...
-
-
-class AnswerNotFoundException(QuestionRepositoryException):
     ...

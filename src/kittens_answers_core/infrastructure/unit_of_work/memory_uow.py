@@ -1,6 +1,7 @@
 from copy import deepcopy
 from typing import cast
 
+from ..repository.answer.memory import MemoryAnswerRepository
 from ..repository.question.memory import MemoryQuestionRepository
 from ..repository.user.memory import MemoryUserRepository
 from .abc_uow import UoW
@@ -10,6 +11,7 @@ class MemoryUoW(UoW):
     def __init__(self) -> None:
         self.user_repository = MemoryUserRepository()
         self.question_repository = MemoryQuestionRepository()
+        self.answer_repository = MemoryAnswerRepository()
 
     async def __aenter__(self):
         self._old_user_data = deepcopy(cast(MemoryUserRepository, self.user_repository)._data)
