@@ -1,9 +1,10 @@
 from typing import Mapping
 
-from kittens_answers_core.domain.entities.entities import Answer, IDType, Question, User
-from kittens_answers_core.infrastructure.repository.answer.base import AnswerNotFound
-
-from ...infrastructure.unit_of_work.abc_uow import UoW
+from kittens_answers_core.domain.entities import Answer, IDType, Question, User
+from kittens_answers_core.infrastructure.repository.exception import (
+    AnswerNotFoundException,
+)
+from kittens_answers_core.infrastructure.unit_of_work.abc_uow import UoW
 
 
 async def add_answer(
@@ -12,10 +13,10 @@ async def add_answer(
     async with uow:
         question = await uow.question_repository.get_by_id(question_id=question_id)
         try:
-            answer = await uow.answer_repository.get_answer(question=question, value=value)
+            answer = await uow.answer_repository.get_answer(question_id=question.id, value=value)
             is_created = False
-        except AnswerNotFound:
-            answer = await uow.answer_repository.create_answer(user=user, question=question, value=value)
+        except AnswerNotFoundException:
+            answer = await uow.answer_repository.create_answer(user_id=user.id, question_id=question.id, value=value)
             is_created = True
             await uow.commit()
 

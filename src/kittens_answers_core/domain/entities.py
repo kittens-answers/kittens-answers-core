@@ -1,7 +1,14 @@
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Mapping, TypeAlias
 
-from .enums import QuestionType
+
+class QuestionType(StrEnum):
+    ONE = "ONE"
+    MANY = "MANY"
+    ORDER = "ORDER"
+    MATCH = "MATCH"
+
 
 IDType: TypeAlias = int
 
@@ -22,7 +29,7 @@ class User:
 @dataclass(kw_only=True)
 class Question:
     id: IDType
-    created_by: User
+    created_by: IDType
     text: str
     question_type: QuestionType
     options: frozenset[str] = field(default_factory=frozenset)
@@ -62,7 +69,7 @@ class Question:
 class BaseAnswer:
     id: IDType
     question_id: IDType
-    created_by: User
+    created_by: IDType
 
 
 @dataclass(kw_only=True)
@@ -124,12 +131,12 @@ Answer: TypeAlias = OneAnswer | ManyAnswer | OrderAnswer | MatchAnswer
 
 @dataclass(kw_only=True)
 class Mark:
-    user: User
+    user_id: IDType
     answer_id: IDType
     is_correct: bool
 
     def __hash__(self) -> int:
-        return tuple((self.user.id, self.answer_id)).__hash__()
+        return tuple((self.user_id, self.answer_id)).__hash__()
 
 
 # AnswerType = TypeVar("AnswerType", bound=Answer)

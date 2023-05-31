@@ -7,19 +7,14 @@ pytestmark = pytest.mark.anyio
 
 
 async def test_get_or_create(uow: UoW):
-    async with uow:
-        await get_or_create("user", uow=uow)
-        await uow.commit()
+    await get_or_create("user", uow=uow)
 
     assert len(await uow.user_repository.list()) == 1
 
-    async with uow:
-        await get_or_create("user", uow=uow)
-        await uow.commit()
+    await get_or_create("user", uow=uow)
 
     assert len(await uow.user_repository.list()) == 1
 
-    async with uow:
-        await get_or_create("other", uow=uow)
+    await get_or_create("other", uow=uow)
 
-    assert len(await uow.user_repository.list()) == 1
+    assert len(await uow.user_repository.list()) == 2

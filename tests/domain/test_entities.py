@@ -1,18 +1,11 @@
 import pytest
 
-from kittens_answers_core.domain.entities import entities
-from kittens_answers_core.domain.entities.enums import QuestionType
+from kittens_answers_core.domain import entities
 
 
 @pytest.fixture
 def created_by():
-    return entities.User(id=1, public_id="id")
-
-
-# class TestMixin:
-#     def test_id_mixin(self):
-#         with pytest.raises(ValueError, match="id must be positive"):
-#             entities.IDMixin(id=-1)
+    return entities.User(id=1, public_id="id").id
 
 
 class TestUser:
@@ -26,24 +19,24 @@ class TestQuestion:
         ["text", "question_type", "options", "extra_options"],
         (
             # ONE
-            ("text", QuestionType.ONE, [], []),
-            ("text", QuestionType.ONE, ["1", "2"], []),
+            ("text", entities.QuestionType.ONE, [], []),
+            ("text", entities.QuestionType.ONE, ["1", "2"], []),
             # MANY
-            ("text", QuestionType.MANY, [], []),
-            ("text", QuestionType.MANY, ["1", "2"], []),
+            ("text", entities.QuestionType.MANY, [], []),
+            ("text", entities.QuestionType.MANY, ["1", "2"], []),
             # ORDER
-            ("text", QuestionType.ORDER, [], []),
-            ("text", QuestionType.ORDER, ["1", "2"], []),
+            ("text", entities.QuestionType.ORDER, [], []),
+            ("text", entities.QuestionType.ORDER, ["1", "2"], []),
             # MATCH
-            ("text", QuestionType.MATCH, [], []),
-            ("text", QuestionType.MATCH, ["1", "2"], ["a", "b"]),
+            ("text", entities.QuestionType.MATCH, [], []),
+            ("text", entities.QuestionType.MATCH, ["1", "2"], ["a", "b"]),
         ),
     )
     def test_correct(
         self,
-        created_by: entities.User,
+        created_by: entities.IDType,
         text: str,
-        question_type: QuestionType,
+        question_type: entities.QuestionType,
         options: list[str],
         extra_options: list[str],
     ):
@@ -60,33 +53,33 @@ class TestQuestion:
         ["text", "question_type", "options", "extra_options"],
         (
             # ONE
-            ("text", QuestionType.ONE, ["1"], []),
-            ("text", QuestionType.ONE, ["1", "2"], ["a", "b"]),
-            ("text", QuestionType.ONE, ["1"], ["a", "b"]),
+            ("text", entities.QuestionType.ONE, ["1"], []),
+            ("text", entities.QuestionType.ONE, ["1", "2"], ["a", "b"]),
+            ("text", entities.QuestionType.ONE, ["1"], ["a", "b"]),
             # MANY
-            ("text", QuestionType.MANY, ["1"], []),
-            ("text", QuestionType.MANY, ["1"], ["a", "b"]),
-            ("text", QuestionType.MANY, ["1", "2"], ["a", "b"]),
-            ("text", QuestionType.MANY, ["1", "2"], ["a"]),
+            ("text", entities.QuestionType.MANY, ["1"], []),
+            ("text", entities.QuestionType.MANY, ["1"], ["a", "b"]),
+            ("text", entities.QuestionType.MANY, ["1", "2"], ["a", "b"]),
+            ("text", entities.QuestionType.MANY, ["1", "2"], ["a"]),
             # ORDER
-            ("text", QuestionType.ORDER, ["1"], []),
-            ("text", QuestionType.ORDER, ["1"], ["b"]),
-            ("text", QuestionType.ORDER, ["1", "2"], ["a"]),
-            ("text", QuestionType.ORDER, ["1", "2"], ["a", "b"]),
+            ("text", entities.QuestionType.ORDER, ["1"], []),
+            ("text", entities.QuestionType.ORDER, ["1"], ["b"]),
+            ("text", entities.QuestionType.ORDER, ["1", "2"], ["a"]),
+            ("text", entities.QuestionType.ORDER, ["1", "2"], ["a", "b"]),
             # MATCH
-            ("text", QuestionType.MATCH, ["1"], []),
-            ("text", QuestionType.MATCH, ["1"], ["a"]),
-            ("text", QuestionType.MATCH, ["1"], ["a", "b"]),
-            ("text", QuestionType.MATCH, ["1", "2"], ["a", "b", "c"]),
-            ("text", QuestionType.MATCH, ["1", "2"], ["a"]),
-            ("text", QuestionType.MATCH, ["1", "2"], []),
+            ("text", entities.QuestionType.MATCH, ["1"], []),
+            ("text", entities.QuestionType.MATCH, ["1"], ["a"]),
+            ("text", entities.QuestionType.MATCH, ["1"], ["a", "b"]),
+            ("text", entities.QuestionType.MATCH, ["1", "2"], ["a", "b", "c"]),
+            ("text", entities.QuestionType.MATCH, ["1", "2"], ["a"]),
+            ("text", entities.QuestionType.MATCH, ["1", "2"], []),
         ),
     )
     def test_incorrect(
         self,
-        created_by: entities.User,
+        created_by: entities.IDType,
         text: str,
-        question_type: QuestionType,
+        question_type: entities.QuestionType,
         options: list[str],
         extra_options: list[str],
     ):
@@ -100,73 +93,93 @@ class TestQuestion:
                 extra_options=frozenset(extra_options),
             )
 
-    def test_empty_text(self, created_by: entities.User):
+    def test_empty_text(self, created_by: entities.IDType):
         with pytest.raises(ValueError, match="text can not be empty"):
             entities.Question(
                 created_by=created_by,
                 id=1,
                 text="",
-                question_type=QuestionType.ONE,
+                question_type=entities.QuestionType.ONE,
+            )
+
+    def test_empty_options(self, created_by: entities.IDType):
+        with pytest.raises(ValueError, match="options or extra options can not be empty"):
+            entities.Question(
+                created_by=created_by,
+                id=1,
+                text="?",
+                question_type=entities.QuestionType.ONE,
+                options=frozenset(("", "1")),
+            )
+
+        with pytest.raises(ValueError, match="options or extra options can not be empty"):
+            entities.Question(
+                created_by=created_by,
+                id=1,
+                text="?",
+                question_type=entities.QuestionType.MATCH,
+                options=frozenset(("1", "2")),
+                extra_options=frozenset(("a", "")),
             )
 
 
-# class TestOneAnswer:
-#     def test_correct(self):
-#         entities.OneAnswer(id=1, value="1")
-#         with pytest.raises(ValueError, match="answer can not be empty"):
-#             entities.OneAnswer(id=1, value="")
+class TestOneAnswer:
+    def test_correct(self, created_by: entities.IDType):
+        entities.OneAnswer(id=1, value="1", created_by=created_by, question_id=1)
+        with pytest.raises(ValueError, match="answer can not be empty"):
+            entities.OneAnswer(id=1, value="", created_by=created_by, question_id=1)
 
-#     def test_incorrect(self):
-#         with pytest.raises(ValueError, match="answer can not be empty"):
-#             entities.OneAnswer(id=1, value="")
-
-
-# class TestManyAnswer:
-#     def test_correct(self):
-#         entities.ManyAnswer(id=1, value=frozenset(["1", "2"]))
-
-#     def test_empty(self):
-#         with pytest.raises(ValueError, match="answer can not be empty"):
-#             entities.ManyAnswer(id=1, value=frozenset(["1", ""]))
-
-#     @pytest.mark.parametrize(
-#         "value",
-#         [
-#             [],
-#         ],
-#     )
-#     def test_incorrect(self, value: list[str]):
-#         with pytest.raises(ValueError, match="many answer must be one or more long"):
-#             entities.ManyAnswer(id=1, value=frozenset(value))
+    def test_incorrect(self, created_by: entities.IDType):
+        with pytest.raises(ValueError, match="answer can not be empty"):
+            entities.OneAnswer(id=1, value="", created_by=created_by, question_id=1)
 
 
-# class TestOrderAnswer:
-#     def test_correct(self):
-#         entities.OrderAnswer(id=1, value=("1", "2"))
+class TestManyAnswer:
+    def test_correct(self, created_by: entities.IDType):
+        entities.ManyAnswer(id=1, value=frozenset(["1", "2"]), created_by=created_by, question_id=1)
 
-#     def test_empty(self):
-#         with pytest.raises(ValueError, match="answer can not be empty"):
-#             entities.OrderAnswer(id=1, value=("1", ""))
+    def test_empty(self, created_by: entities.IDType):
+        with pytest.raises(ValueError, match="answer can not be empty"):
+            entities.ManyAnswer(id=1, value=frozenset(["1", ""]), created_by=created_by, question_id=1)
 
-#     @pytest.mark.parametrize("value", [tuple(), ("1",)])
-#     def test_incorrect(self, value: tuple[str, ...]):
-#         with pytest.raises(ValueError, match="order answer must be two or more long"):
-#             entities.OrderAnswer(id=1, value=value)
+    @pytest.mark.parametrize(
+        "value",
+        [
+            [],
+        ],
+    )
+    def test_incorrect(self, value: list[str], created_by: entities.IDType):
+        with pytest.raises(ValueError, match="many answer must be one or more long"):
+            entities.ManyAnswer(id=1, value=frozenset(value), created_by=created_by, question_id=1)
 
 
-# class TestMatchAnswer:
-#     def test_correct(self):
-#         entities.MatchAnswer(id=1, value={"1": "a", "2": "b"})
+class TestOrderAnswer:
+    def test_correct(self, created_by: entities.IDType):
+        entities.OrderAnswer(id=1, value=("1", "2"), created_by=created_by, question_id=1)
 
-#     @pytest.mark.parametrize("value", [{"": "a", "2": "b"}, {"1": "", "2": "b"}])
-#     def test_empty(self, value: dict[str, str]):
-#         with pytest.raises(ValueError, match="answer can not be empty"):
-#             entities.MatchAnswer(id=1, value=value)
+    def test_empty(self, created_by: entities.IDType):
+        with pytest.raises(ValueError, match="answer can not be empty"):
+            entities.OrderAnswer(id=1, value=("1", ""), created_by=created_by, question_id=1)
 
-#     @pytest.mark.parametrize("value", [dict(), {"1": "a"}])
-#     def test_incorrect(self, value: dict[str, str]):
-#         with pytest.raises(ValueError, match="match answer must be two or more long"):
-#             entities.MatchAnswer(id=1, value=value)
+    @pytest.mark.parametrize("value", [tuple(), ("1",)])
+    def test_incorrect(self, value: tuple[str, ...], created_by: entities.IDType):
+        with pytest.raises(ValueError, match="order answer must be two or more long"):
+            entities.OrderAnswer(id=1, value=value, created_by=created_by, question_id=1)
+
+
+class TestMatchAnswer:
+    def test_correct(self, created_by: entities.IDType):
+        entities.MatchAnswer(id=1, value={"1": "a", "2": "b"}, created_by=created_by, question_id=1)
+
+    @pytest.mark.parametrize("value", [{"": "a", "2": "b"}, {"1": "", "2": "b"}])
+    def test_empty(self, value: dict[str, str], created_by: entities.IDType):
+        with pytest.raises(ValueError, match="answer can not be empty"):
+            entities.MatchAnswer(id=1, value=value, created_by=created_by, question_id=1)
+
+    @pytest.mark.parametrize("value", [dict(), {"1": "a"}])
+    def test_incorrect(self, value: dict[str, str], created_by: entities.IDType):
+        with pytest.raises(ValueError, match="match answer must be two or more long"):
+            entities.MatchAnswer(id=1, value=value, created_by=created_by, question_id=1)
 
 
 # class TestQuestionWithOneAnswer:

@@ -1,10 +1,8 @@
-from ...infrastructure.repository.question.base import (
-    Question,
+from kittens_answers_core.domain.entities import Question, QuestionType, User
+from kittens_answers_core.infrastructure.repository.exception import (
     QuestionNotFoundException,
-    QuestionType,
-    User,
 )
-from ...infrastructure.unit_of_work.abc_uow import UoW
+from kittens_answers_core.infrastructure.unit_of_work.abc_uow import UoW
 
 
 async def get_or_create_question(
@@ -24,7 +22,7 @@ async def get_or_create_question(
 
         except QuestionNotFoundException:
             question = await uow.question_repository.create(
-                user=user,
+                user_id=user.id,
                 question_text=question_text,
                 question_type=question_type,
                 options=options,

@@ -1,15 +1,19 @@
 import abc
 from contextlib import AbstractAsyncContextManager
 
-from ..repository.answer.base import AnswerRepository
-from ..repository.question.base import QuestionRepository
-from ..repository.user.base import UserRepository
+from kittens_answers_core.infrastructure.repository.abstract import (
+    AbstractAnswerRepository,
+    AbstractMarkRepository,
+    AbstractQuestionRepository,
+    AbstractUserRepository,
+)
 
 
 class UoW(AbstractAsyncContextManager):  # pragma: no cover
-    user_repository: UserRepository
-    question_repository: QuestionRepository
-    answer_repository: AnswerRepository
+    user_repository: AbstractUserRepository
+    question_repository: AbstractQuestionRepository
+    answer_repository: AbstractAnswerRepository
+    mark_repository: AbstractMarkRepository
 
     @abc.abstractmethod
     async def commit(self):

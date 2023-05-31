@@ -1,6 +1,6 @@
 import pytest
 
-from kittens_answers_core.domain.entities.entities import QuestionType, User
+from kittens_answers_core.domain.entities import QuestionType, User
 from kittens_answers_core.domain.services.question import get_or_create_question
 from kittens_answers_core.infrastructure.unit_of_work.abc_uow import UoW
 
