@@ -4,7 +4,8 @@
         ".pytest_cache": true,
         ".coverage.*": true,
         ".ruff_cache": true,
-        "htmlcov": true
+        "htmlcov": true,
+        ".coverage": true
     },
     "cSpell.words": [
         "fixturenames",
