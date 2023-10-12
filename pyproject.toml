@@ -7,7 +7,7 @@ name = "kittens-answers-core"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 license = "MIT"
 keywords = []
 authors = [
@@ -16,15 +16,15 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "pydantic>=2.4.2",
+  "sqlalchemy[asyncio]>=2.0.21",
+  "psycopg[binary,pool]>=3.1.12"
+]
 
 [project.urls]
 Documentation = "https://github.com/kittens-answers/kittens-answers-core#readme"
@@ -39,6 +39,11 @@ dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
   "mypy",
+  "mimesis",
+  "anyio",
+  "testcontainers-postgres",
+  "black>=23.1.0",
+  "ruff>=0.0.243",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
@@ -46,23 +51,12 @@ test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
   "- coverage combine",
   "coverage report",
+  "coverage html",
 ]
 cov = [
   "test-cov",
   "cov-report",
 ]
-
-[[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
-
-[tool.hatch.envs.lint]
-detached = true
-dependencies = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
-]
-[tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/kittens_answers_core tests}"
 style = [
   "ruff {args:.}",
@@ -79,12 +73,12 @@ all = [
 ]
 
 [tool.black]
-target-version = ["py37"]
+target-version = ["py311"]
 line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py311"
 line-length = 120
 select = [
   "A",
@@ -156,3 +150,27 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+
+# for strict mypy: (this is the tricky one :-))
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "testcontainers.postgres"
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
