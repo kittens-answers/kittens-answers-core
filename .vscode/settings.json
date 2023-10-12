@@ -1,6 +1,20 @@
 {
     "files.exclude": {
         ".mypy_cache": true,
-        ".pytest_cache": true
-    }
+        ".pytest_cache": true,
+        ".coverage.*": true,
+        ".ruff_cache": true,
+        "htmlcov": true
+    },
+    "cSpell.words": [
+        "fixturenames",
+        "metafunc",
+        "psycopg",
+        "pydantic",
+        "pytestmark",
+        "sessionmaker",
+        "sqlalchemy",
+        "testcontainers",
+        "usefixtures"
+    ]
 }
