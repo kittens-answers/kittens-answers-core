@@ -13,6 +13,7 @@
         "psycopg",
         "pydantic",
         "pytestmark",
+        "selectinload",
         "sessionmaker",
         "sqlalchemy",
         "testcontainers",

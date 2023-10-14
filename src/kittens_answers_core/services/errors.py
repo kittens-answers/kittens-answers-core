@@ -1,10 +1,18 @@
-class UserServiceError(Exception):
+class ServiceError(Exception):
     ...
 
 
-class UserDoesNotExistError(UserServiceError):
+class UserDoesNotExistError(ServiceError):
     ...
 
 
-class UserAlreadyExistError(UserServiceError):
+class UserAlreadyExistError(ServiceError):
+    ...
+
+
+class QuestionAlreadyExistError(ServiceError):
+    ...
+
+
+class QuestionDoesNotExistError(ServiceError):
     ...
