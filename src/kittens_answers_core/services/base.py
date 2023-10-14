@@ -2,7 +2,7 @@ import abc
 from types import TracebackType
 from typing import Self
 
-from kittens_answers_core.models import User
+from kittens_answers_core.models import Question, QuestionTypes, User
 
 
 class BaseUserServices(abc.ABC):  # pragma: no cover
@@ -19,8 +19,36 @@ class BaseUserServices(abc.ABC):  # pragma: no cover
         ...
 
 
+class BaseQuestionServices(abc.ABC):  # pragma: no cover
+    @abc.abstractmethod
+    async def get_by_uid(self, uid: str) -> Question:
+        ...
+
+    @abc.abstractmethod
+    async def get(
+        self,
+        question_type: QuestionTypes,
+        question_text: str,
+        options: set[str],
+        extra_options: set[str],
+    ) -> Question:
+        ...
+
+    @abc.abstractmethod
+    async def create(
+        self,
+        question_type: QuestionTypes,
+        question_text: str,
+        options: set[str],
+        extra_options: set[str],
+        creator_id: str,
+    ) -> Question:
+        ...
+
+
 class BaseUnitOfWork(abc.ABC):  # pragma: no cover
     user_services: BaseUserServices
+    question_services: BaseQuestionServices
 
     @abc.abstractmethod
     async def commit(self) -> None:
