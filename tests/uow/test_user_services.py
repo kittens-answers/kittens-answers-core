@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from uuid import UUID
 
 import pytest
 
@@ -27,11 +28,11 @@ class TestGetByForeignID:
 
 class TestGetByUid:
     async def test_if_not_in_db(
-        self, uow: BaseUnitOfWork, populate_users: list[User], user_uid_factory: Callable[..., str]
+        self, uow: BaseUnitOfWork, populate_users: list[User], user_uid_factory: Callable[..., UUID]
     ) -> None:
         while True:
             user_uid = user_uid_factory()
-            if user_uid not in [str(user.uid) for user in populate_users]:
+            if user_uid not in [user.uid for user in populate_users]:
                 break
         with pytest.raises(UserDoesNotExistError):
             async with uow:
@@ -40,7 +41,7 @@ class TestGetByUid:
     async def test_if_in_db(self, uow: BaseUnitOfWork, populate_users: list[User]) -> None:
         user_in_db = populate_users[0]
         async with uow:
-            user = await uow.user_services.get_by_uid(uid=str(user_in_db.uid))
+            user = await uow.user_services.get_by_uid(uid=user_in_db.uid)
             await uow.commit()
 
         assert user == user_in_db

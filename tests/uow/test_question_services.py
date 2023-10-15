@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from uuid import UUID
 
 import pytest
 from mimesis.types import JSON
@@ -15,14 +16,14 @@ pytestmark = pytest.mark.anyio
 
 class TestGetByUid:
     @pytest.mark.usefixtures("populate_questions")
-    async def test_if_not_in_db(self, uow: BaseUnitOfWork, question_uid_factory: Callable[..., str]) -> None:
+    async def test_if_not_in_db(self, uow: BaseUnitOfWork, question_uid_factory: Callable[..., UUID]) -> None:
         with pytest.raises(QuestionDoesNotExistError):
             async with uow:
                 await uow.question_services.get_by_uid(uid=question_uid_factory())
 
     async def test_if_in_db(self, uow: BaseUnitOfWork, populate_questions: list[Question]) -> None:
         async with uow:
-            question = await uow.question_services.get_by_uid(uid=str(populate_questions[0].uid))
+            question = await uow.question_services.get_by_uid(uid=populate_questions[0].uid)
         assert question == populate_questions[0]
 
 
@@ -62,12 +63,12 @@ class TestCreate:
     ) -> None:
         async with uow:
             question = await uow.question_services.create(
-                creator_id=str(random_user_from_db().uid), **question_data_factory()
+                creator_id=random_user_from_db().uid, **question_data_factory()
             )
             await uow.commit()
 
         async with uow:
-            assert question == (await uow.question_services.get_by_uid(str(question.uid)))
+            assert question == (await uow.question_services.get_by_uid(question.uid))
 
     async def test_if_in_db(
         self, uow: BaseUnitOfWork, populate_questions: list[Question], random_user_from_db: Callable[..., User]
@@ -80,6 +81,6 @@ class TestCreate:
                     question_text=question_from_db.text,
                     options=question_from_db.options,
                     extra_options=question_from_db.extra_options,
-                    creator_id=str(random_user_from_db().uid),
+                    creator_id=random_user_from_db().uid,
                 )
             assert question_from_db == question

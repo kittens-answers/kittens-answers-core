@@ -1,6 +1,7 @@
 import abc
 from types import TracebackType
 from typing import Self
+from uuid import UUID
 
 from kittens_answers_core.models import Question, QuestionTypes, User
 
@@ -11,7 +12,7 @@ class BaseUserServices(abc.ABC):  # pragma: no cover
         ...
 
     @abc.abstractmethod
-    async def get_by_uid(self, uid: str) -> User:
+    async def get_by_uid(self, uid: UUID) -> User:
         ...
 
     @abc.abstractmethod
@@ -21,7 +22,7 @@ class BaseUserServices(abc.ABC):  # pragma: no cover
 
 class BaseQuestionServices(abc.ABC):  # pragma: no cover
     @abc.abstractmethod
-    async def get_by_uid(self, uid: str) -> Question:
+    async def get_by_uid(self, uid: UUID) -> Question:
         ...
 
     @abc.abstractmethod
@@ -41,7 +42,7 @@ class BaseQuestionServices(abc.ABC):  # pragma: no cover
         question_text: str,
         options: set[str],
         extra_options: set[str],
-        creator_id: str,
+        creator_id: UUID,
     ) -> Question:
         ...
 

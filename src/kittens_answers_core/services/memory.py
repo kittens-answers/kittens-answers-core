@@ -25,10 +25,9 @@ class MemoryUserServices(BaseUserServices):
                 return user
         raise UserDoesNotExistError
 
-    async def get_by_uid(self, uid: str) -> User:
-        uid_ = UUID(uid)
+    async def get_by_uid(self, uid: UUID) -> User:
         for user in self.data:
-            if user.uid == uid_:
+            if user.uid == uid:
                 return user
         raise UserDoesNotExistError
 
@@ -51,7 +50,7 @@ class MemoryQuestionServices(BaseQuestionServices):
         question_text: str,
         options: set[str],
         extra_options: set[str],
-        creator_id: str,
+        creator_id: UUID,
     ) -> Question:
         for question in self.data:
             if (
@@ -62,7 +61,7 @@ class MemoryQuestionServices(BaseQuestionServices):
             ):
                 raise QuestionAlreadyExistError
         question = Question(
-            creator=UUID(creator_id),
+            creator=creator_id,
             question_type=question_type,
             text=question_text,
             options=options,
@@ -71,9 +70,9 @@ class MemoryQuestionServices(BaseQuestionServices):
         self.data.append(question)
         return question
 
-    async def get_by_uid(self, uid: str) -> Question:
+    async def get_by_uid(self, uid: UUID) -> Question:
         for question in self.data:
-            if question.uid == UUID(uid):
+            if question.uid == uid:
                 return question
         raise QuestionDoesNotExistError
 

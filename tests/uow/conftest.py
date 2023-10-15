@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator, Callable
+from uuid import UUID
 
 import pytest
 from mimesis import Field, Schema
@@ -45,11 +46,11 @@ def user_foreign_id_factory() -> Callable[..., str]:
 
 
 @pytest.fixture
-def user_uid_factory() -> Callable[..., str]:
+def user_uid_factory() -> Callable[..., UUID]:
     field = Field()
 
-    def _user_uid_factory() -> str:
-        return field("uuid")
+    def _user_uid_factory() -> UUID:
+        return field("uuid_object")
 
     return _user_uid_factory
 
@@ -66,11 +67,11 @@ async def populate_users(uow: BaseUnitOfWork, user_foreign_id_factory: Callable[
 
 
 @pytest.fixture
-def question_uid_factory() -> Callable[..., str]:
+def question_uid_factory() -> Callable[..., UUID]:
     field = Field()
 
-    def _question_uid_factory() -> str:
-        return field("uuid")
+    def _question_uid_factory() -> UUID:
+        return field("uuid_object")
 
     return _question_uid_factory
 
@@ -120,7 +121,7 @@ async def populate_questions(
     async with uow:
         for _ in range(10):
             question = await uow.question_services.create(
-                creator_id=str(random_user_from_db().uid), **question_data_factory()
+                creator_id=random_user_from_db().uid, **question_data_factory()
             )
             result.append(question)
         await uow.commit()

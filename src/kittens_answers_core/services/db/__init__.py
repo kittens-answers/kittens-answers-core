@@ -61,8 +61,8 @@ class SQLAlchemyUserServices(BaseUserServices):
             raise UserDoesNotExistError
         return User(uid=user.uid, foreign_id=user.foreign_id)
 
-    async def get_by_uid(self, uid: str) -> User:
-        user = await self.session.scalar(select(DBUser).where(DBUser.uid == UUID(uid)))
+    async def get_by_uid(self, uid: UUID) -> User:
+        user = await self.session.scalar(select(DBUser).where(DBUser.uid == uid))
         if user is None:
             raise UserDoesNotExistError
         return User(uid=user.uid, foreign_id=user.foreign_id)
@@ -81,9 +81,9 @@ class SQLAlchemyQuestionServices(BaseQuestionServices):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_uid(self, uid: str) -> Question:
+    async def get_by_uid(self, uid: UUID) -> Question:
         question = await self.session.scalar(
-            select(DBQuestion).where(DBQuestion.uid == UUID(uid)).options(selectinload(DBQuestion.root_question))
+            select(DBQuestion).where(DBQuestion.uid == uid).options(selectinload(DBQuestion.root_question))
         )
         if question is None:
             raise QuestionDoesNotExistError
@@ -132,7 +132,7 @@ class SQLAlchemyQuestionServices(BaseQuestionServices):
         question_text: str,
         options: set[str],
         extra_options: set[str],
-        creator_id: str,
+        creator_id: UUID,
     ) -> Question:
         root_question = await self.session.scalar(
             select(DBRootQuestion).where(
@@ -156,7 +156,7 @@ class SQLAlchemyQuestionServices(BaseQuestionServices):
             raise QuestionAlreadyExistError
         question = DBQuestion(
             uid=uuid4(),
-            creator_id=UUID(creator_id),
+            creator_id=creator_id,
             options=sorted(options),
             extra_options=sorted(extra_options),
             root_question_uid=root_question.root_uid,
