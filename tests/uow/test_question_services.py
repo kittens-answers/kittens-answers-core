@@ -5,7 +5,7 @@ import pytest
 from mimesis.types import JSON
 
 from kittens_answers_core.models import Question, User
-from kittens_answers_core.services.base import BaseUnitOfWork
+from kittens_answers_core.services.base.uow import BaseUnitOfWork
 from kittens_answers_core.services.errors import (
     QuestionAlreadyExistError,
     QuestionDoesNotExistError,

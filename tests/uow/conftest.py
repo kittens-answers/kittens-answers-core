@@ -7,14 +7,17 @@ from mimesis.keys import maybe
 from mimesis.types import JSON
 
 from kittens_answers_core.models import Question, QuestionTypes, User
-from kittens_answers_core.services.base import BaseUnitOfWork
-from kittens_answers_core.services.db import SQLAlchemyUnitOfWork
+from kittens_answers_core.services.base.uow import BaseUnitOfWork
 from kittens_answers_core.services.db.models import Base
-from kittens_answers_core.services.memory import MemoryUnitOfWork
+from kittens_answers_core.services.db.uow import SQLAlchemyUnitOfWork
+from kittens_answers_core.services.memory.uow import MemoryUnitOfWork
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    uow_list = [MemoryUnitOfWork, SQLAlchemyUnitOfWork]
+    uow_list = [
+        MemoryUnitOfWork,
+        SQLAlchemyUnitOfWork,
+    ]
     if uow.__name__ in metafunc.fixturenames:
         metafunc.parametrize(uow.__name__, uow_list, indirect=True)
 

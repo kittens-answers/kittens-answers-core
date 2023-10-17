@@ -4,7 +4,7 @@ from uuid import UUID
 import pytest
 
 from kittens_answers_core.models import User
-from kittens_answers_core.services.base import BaseUnitOfWork
+from kittens_answers_core.services.base.uow import BaseUnitOfWork
 from kittens_answers_core.services.errors import UserAlreadyExistError, UserDoesNotExistError
 
 pytestmark = pytest.mark.anyio
@@ -67,7 +67,6 @@ class TestCreate:
         foreign_id = user_foreign_id_factory()
         async with uow:
             await uow.user_services.create(foreign_id=foreign_id)
-            await uow.rollback()
 
         with pytest.raises(UserDoesNotExistError):
             async with uow:
