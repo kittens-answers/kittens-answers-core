@@ -8,6 +8,7 @@
         ".coverage": true
     },
     "cSpell.words": [
+        "autouse",
         "fixturenames",
         "metafunc",
         "psycopg",
