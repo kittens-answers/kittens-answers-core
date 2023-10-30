@@ -1,12 +1,17 @@
 from uuid import UUID
 
 from kittens_answers_core.models import Question, QuestionTypes
-from kittens_answers_core.services.base.question_services import BaseQuestionServices
-from kittens_answers_core.services.errors import QuestionAlreadyExistError, QuestionDoesNotExistError
-from kittens_answers_core.services.memory.backup_mixin import MemoryBackUpMixin
+from kittens_answers_core.services.base.repositories.question import (
+    BaseQuestionRepository,
+)
+from kittens_answers_core.services.errors import (
+    QuestionAlreadyExistError,
+    QuestionDoesNotExistError,
+)
+from kittens_answers_core.services.memory.repositories.backup_mixin import MemoryBackUpMixin
 
 
-class MemoryQuestionServices(BaseQuestionServices, MemoryBackUpMixin[Question]):
+class MemoryQuestionServices(BaseQuestionRepository, MemoryBackUpMixin[Question]):
     def __init__(self, data: list[Question]) -> None:
         super().__init__(Question, "question", data)
 

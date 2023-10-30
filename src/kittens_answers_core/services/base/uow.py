@@ -1,14 +1,26 @@
 import abc
 from types import TracebackType
-from typing import Self
+from typing import Generic, Self, TypeVar
 
-from kittens_answers_core.services.base.question_services import BaseQuestionServices
-from kittens_answers_core.services.base.user_services import BaseUserServices
+from kittens_answers_core.services.base.repositories.answer import BaseAnswerRepository
+from kittens_answers_core.services.base.repositories.question import (
+    BaseQuestionRepository,
+)
+from kittens_answers_core.services.base.repositories.user import BaseUserRepository
+
+UT = TypeVar("UT", bound=BaseUserRepository)
+QT = TypeVar("QT", bound=BaseQuestionRepository)
+AT = TypeVar("AT", bound=BaseAnswerRepository)
 
 
-class BaseUnitOfWork(abc.ABC):  # pragma: no cover
-    user_services: BaseUserServices
-    question_services: BaseQuestionServices
+class BaseUnitOfWork(abc.ABC, Generic[UT, QT, AT]):  # pragma: no cover
+    user_services: UT
+    question_services: QT
+    answer_services: AT
+
+    @property
+    def services(self) -> list[UT | QT | AT]:
+        return [self.user_services, self.question_services, self.answer_services]
 
     @abc.abstractmethod
     async def commit(self) -> None:

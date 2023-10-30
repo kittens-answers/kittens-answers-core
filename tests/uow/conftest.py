@@ -1,16 +1,33 @@
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 import pytest
-from mimesis import Field, Schema
+from mimesis import Field
 from mimesis.keys import maybe
-from mimesis.types import JSON
 
-from kittens_answers_core.models import Question, QuestionTypes, User
-from kittens_answers_core.services.base.uow import BaseUnitOfWork
+from kittens_answers_core.models import Answer, Question, QuestionTypes, User
 from kittens_answers_core.services.db.models import Base
 from kittens_answers_core.services.db.uow import SQLAlchemyUnitOfWork
 from kittens_answers_core.services.memory.uow import MemoryUnitOfWork
+from tests.uow.fixture_types import (
+    AnswerDataDict,
+    AnswerDataFactory,
+    AnswerFactory,
+    QuestionDataDict,
+    QuestionDataFactory,
+    QuestionFactory,
+    UIDFactory,
+    UOWTypes,
+    UserDataDict,
+    UserDataFactory,
+    UserFactory,
+)
+from tests.uow.providers import AnswerProvider
+
+
+@pytest.fixture
+def mimesis_field() -> Field:
+    return Field(providers=[AnswerProvider])
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -23,7 +40,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
 
 @pytest.fixture
-async def uow(db_container_url: str, request: pytest.FixtureRequest) -> AsyncGenerator[BaseUnitOfWork, None]:
+async def uow(db_container_url: str, request: pytest.FixtureRequest) -> AsyncGenerator[UOWTypes, None]:
     if request.param == MemoryUnitOfWork:
         yield MemoryUnitOfWork()
     elif request.param == SQLAlchemyUnitOfWork:
@@ -39,93 +56,111 @@ async def uow(db_container_url: str, request: pytest.FixtureRequest) -> AsyncGen
 
 
 @pytest.fixture
-def user_foreign_id_factory() -> Callable[..., str]:
-    field = Field()
-
-    def _user_foreign_id_factory() -> str:
-        return field("increment", key=str)
-
-    return _user_foreign_id_factory
+def user_data_factory(mimesis_field: Field) -> UserDataFactory:
+    return lambda: UserDataDict(foreign_id=mimesis_field("increment", key=str))
 
 
 @pytest.fixture
-def user_uid_factory() -> Callable[..., UUID]:
-    field = Field()
-
-    def _user_uid_factory() -> UUID:
-        return field("uuid_object")
-
-    return _user_uid_factory
+def uid_factory(mimesis_field: Field) -> UIDFactory:
+    return lambda: mimesis_field("uuid_object")
 
 
 @pytest.fixture
-async def populate_users(uow: BaseUnitOfWork, user_foreign_id_factory: Callable[..., str]) -> list[User]:
-    result: list[User] = []
-    async with uow:
-        for _ in range(4):
-            user = await uow.user_services.create(foreign_id=user_foreign_id_factory())
-            result.append(user)
-        await uow.commit()
-    return result
+def user_factory(uow: UOWTypes, user_data_factory: UserDataFactory) -> UserFactory:
+    async def _user_factory(foreign_id: str | None = None) -> User:
+        if foreign_id is None:
+            foreign_id = user_data_factory()["foreign_id"]
+        async with uow:
+            user = await uow.user_services.create(foreign_id=foreign_id)
+            await uow.commit()
+        return user
+
+    return _user_factory
 
 
 @pytest.fixture
-def question_uid_factory() -> Callable[..., UUID]:
-    field = Field()
-
-    def _question_uid_factory() -> UUID:
-        return field("uuid_object")
-
-    return _question_uid_factory
-
-
-@pytest.fixture
-def question_data_factory() -> Callable[..., JSON]:
-    field = Field()
-    schema = Schema(
-        schema=lambda: {
-            "question_type": (question_type := field("random.choice_enum_item", enum=QuestionTypes)),
-            "question_text": field("sentence"),
-            "options": set(field("words", key=maybe([], probability=0.2))),
-            "extra_options": set(field("words", key=maybe([], probability=0.2)))
-            if question_type == QuestionTypes.MATCH
-            else set(),
-        },
-        iterations=1,
-    )
-    data: list[JSON] = []
-
-    def _question_data_factory() -> JSON:
-        while True:
-            _schema = schema.create()[0]
-            if _schema not in data:
-                break
-        data.append(_schema)
-        return _schema
+def question_data_factory(mimesis_field: Field) -> QuestionDataFactory:
+    def _question_data_factory(
+        question_type: QuestionTypes | None = None, empty_options: bool | None = None
+    ) -> QuestionDataDict:
+        if empty_options is None:
+            probability = 0.2
+        elif empty_options is False:
+            probability = 0
+        else:
+            probability = 1
+        return QuestionDataDict(
+            question_type=(_question_type := mimesis_field("QA.question_type", question_type=question_type)),
+            question_text=mimesis_field("sentence"),
+            options=mimesis_field("QA.options", key=maybe(set(), probability=probability)),
+            extra_options=mimesis_field(
+                "QA.extra_options", key=maybe(set(), probability=probability), question_type=_question_type
+            ),
+        )
 
     return _question_data_factory
 
 
 @pytest.fixture
-def random_user_from_db(populate_users: list[User]) -> Callable[..., User]:
-    field = Field()
+def question_factory(
+    uow: UOWTypes, question_data_factory: QuestionDataFactory, user_factory: UserFactory
+) -> QuestionFactory:
+    async def _question_factory(
+        question_data: QuestionDataDict | None = None, user_uid: UUID | None = None
+    ) -> Question:
+        if user_uid is None:
+            user_uid = (await user_factory()).uid
+        if question_data is None:
+            question_data = question_data_factory()
+        async with uow:
+            question = await uow.question_services.create(creator_id=user_uid, **question_data)
+            await uow.commit()
+        return question
 
-    def _random_user_from_db() -> User:
-        return field("random.choice", seq=populate_users)
-
-    return _random_user_from_db
+    return _question_factory
 
 
 @pytest.fixture
-async def populate_questions(
-    uow: BaseUnitOfWork, question_data_factory: Callable[..., JSON], random_user_from_db: Callable[..., User]
-) -> list[Question]:
-    result: list[Question] = []
-    async with uow:
+def answer_data_factory(mimesis_field: Field) -> AnswerDataFactory:
+    def _answer_data_factory(question: Question) -> AnswerDataDict:
+        return AnswerDataDict(
+            answer=mimesis_field("QA.answer", question=question),
+            extra_answer=mimesis_field("QA.extra_answer", question=question),
+            is_correct=mimesis_field("QA.is_correct"),
+            question_uid=question.uid,
+        )
+
+    return _answer_data_factory
+
+
+@pytest.fixture
+async def answer_factory(
+    uow: UOWTypes,
+    question_factory: QuestionFactory,
+    answer_data_factory: AnswerDataFactory,
+    user_factory: UserFactory,
+) -> AnswerFactory:
+    async def _answer_factory(
+        answer_data: AnswerDataDict | None = None,
+        question: Question | None = None,
+        user_uid: UUID | None = None,
+    ) -> Answer:
+        if user_uid is None:
+            user_uid = (await user_factory()).uid
+        if question is None:
+            question = await question_factory(user_uid=user_uid)
+        if answer_data is None:
+            answer_data = answer_data_factory(question)
+        async with uow:
+            answer = await uow.answer_services.create(creator_id=user_uid, **answer_data)
+            await uow.commit()
+        return answer
+
+    return _answer_factory
+
+
+@pytest.fixture(autouse=True)
+async def populate_answers(uow: UOWTypes, answer_factory: AnswerFactory) -> None:
+    if isinstance(uow, MemoryUnitOfWork):
         for _ in range(10):
-            question = await uow.question_services.create(
-                creator_id=random_user_from_db().uid, **question_data_factory()
-            )
-            result.append(question)
-        await uow.commit()
-    return result
+            await answer_factory()

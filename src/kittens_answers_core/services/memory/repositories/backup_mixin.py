@@ -1,8 +1,8 @@
 from typing import Generic, TypeVar
 
-from kittens_answers_core.models import Question, User
+from kittens_answers_core.models import Answer, Question, User
 
-TModel = TypeVar("TModel", User, Question)
+TModel = TypeVar("TModel", User, Question, Answer)
 
 
 class MemoryBackUpMixin(Generic[TModel]):

@@ -1,16 +1,23 @@
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from kittens_answers_core.models import Question, QuestionTypes
-from kittens_answers_core.services.base.question_services import BaseQuestionServices
+from kittens_answers_core.services.base.repositories.question import (
+    BaseQuestionRepository,
+)
 from kittens_answers_core.services.db.models import DBQuestion, DBRootQuestion
-from kittens_answers_core.services.db.session_mixin import SessionMixin
-from kittens_answers_core.services.errors import QuestionAlreadyExistError, QuestionDoesNotExistError
+from kittens_answers_core.services.errors import (
+    QuestionAlreadyExistError,
+    QuestionDoesNotExistError,
+)
 
 
-class SQLAlchemyQuestionServices(BaseQuestionServices, SessionMixin):
+class SQLAlchemyQuestionRepository(BaseQuestionRepository):
+    session: AsyncSession
+
     async def get_by_uid(self, uid: UUID) -> Question:
         question = await self.session.scalar(
             select(DBQuestion).where(DBQuestion.uid == uid).options(selectinload(DBQuestion.root_question))

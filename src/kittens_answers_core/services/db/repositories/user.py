@@ -2,15 +2,20 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from kittens_answers_core.models import User
-from kittens_answers_core.services.base.user_services import BaseUserServices
+from kittens_answers_core.services.base.repositories.user import BaseUserRepository
 from kittens_answers_core.services.db.models import DBUser
-from kittens_answers_core.services.db.session_mixin import SessionMixin
-from kittens_answers_core.services.errors import UserAlreadyExistError, UserDoesNotExistError
+from kittens_answers_core.services.errors import (
+    UserAlreadyExistError,
+    UserDoesNotExistError,
+)
 
 
-class SQLAlchemyUserServices(BaseUserServices, SessionMixin):
+class SQLAlchemyUserRepository(BaseUserRepository):
+    session: AsyncSession
+
     async def get_by_foreign_id(self, foreign_id: str) -> User:
         user = await self.session.scalar(select(DBUser).where(DBUser.foreign_id == foreign_id))
         if user is None:
