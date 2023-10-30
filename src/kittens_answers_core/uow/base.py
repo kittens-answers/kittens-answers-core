@@ -2,11 +2,11 @@ import abc
 from types import TracebackType
 from typing import Generic, Self, TypeVar
 
-from kittens_answers_core.services.base.repositories.answer import BaseAnswerRepository
-from kittens_answers_core.services.base.repositories.question import (
+from kittens_answers_core.repositories.base.answer import BaseAnswerRepository
+from kittens_answers_core.repositories.base.question import (
     BaseQuestionRepository,
 )
-from kittens_answers_core.services.base.repositories.user import BaseUserRepository
+from kittens_answers_core.repositories.base.user import BaseUserRepository
 
 UT = TypeVar("UT", bound=BaseUserRepository)
 QT = TypeVar("QT", bound=BaseQuestionRepository)

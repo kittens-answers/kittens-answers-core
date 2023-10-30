@@ -1,6 +1,6 @@
 import pytest
 
-from kittens_answers_core.services.errors import (
+from kittens_answers_core.errors import (
     AnswerAlreadyExistError,
     AnswerDoesNotExistError,
 )

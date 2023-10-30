@@ -1,12 +1,12 @@
 from uuid import UUID
 
-from kittens_answers_core.models import Answer
-from kittens_answers_core.services.base.repositories.answer import BaseAnswerRepository
-from kittens_answers_core.services.errors import (
+from kittens_answers_core.errors import (
     AnswerAlreadyExistError,
     AnswerDoesNotExistError,
 )
-from kittens_answers_core.services.memory.repositories.backup_mixin import MemoryBackUpMixin
+from kittens_answers_core.models import Answer
+from kittens_answers_core.repositories.base.answer import BaseAnswerRepository
+from kittens_answers_core.repositories.memory.backup_mixin import MemoryBackUpMixin
 
 
 class MemoryAnswerServices(BaseAnswerRepository, MemoryBackUpMixin[Answer]):

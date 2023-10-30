@@ -3,14 +3,14 @@ from typing import Self, TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from kittens_answers_core.services.base.uow import BaseUnitOfWork
-from kittens_answers_core.services.db.repositories.answer import (
+from kittens_answers_core.repositories.db.answer import (
     SQLAlchemyAnswerRepository,
 )
-from kittens_answers_core.services.db.repositories.question import (
+from kittens_answers_core.repositories.db.question import (
     SQLAlchemyQuestionRepository,
 )
-from kittens_answers_core.services.db.repositories.user import SQLAlchemyUserRepository
+from kittens_answers_core.repositories.db.user import SQLAlchemyUserRepository
+from kittens_answers_core.uow.base import BaseUnitOfWork
 
 SQLAlchemyServices: TypeAlias = SQLAlchemyUserRepository | SQLAlchemyQuestionRepository
 

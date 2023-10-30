@@ -4,13 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kittens_answers_core.models import Answer
-from kittens_answers_core.services.base.repositories.answer import BaseAnswerRepository
-from kittens_answers_core.services.db.models import DBAnswer
-from kittens_answers_core.services.errors import (
+from kittens_answers_core.errors import (
     AnswerAlreadyExistError,
     AnswerDoesNotExistError,
 )
+from kittens_answers_core.models import Answer
+from kittens_answers_core.models.db_models import DBAnswer
+from kittens_answers_core.repositories.base.answer import BaseAnswerRepository
 
 
 class SQLAlchemyAnswerRepository(BaseAnswerRepository):

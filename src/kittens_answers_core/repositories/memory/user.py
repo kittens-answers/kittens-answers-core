@@ -1,12 +1,12 @@
 from uuid import UUID, uuid4
 
-from kittens_answers_core.models import User
-from kittens_answers_core.services.base.repositories.user import BaseUserRepository
-from kittens_answers_core.services.errors import (
+from kittens_answers_core.errors import (
     UserAlreadyExistError,
     UserDoesNotExistError,
 )
-from kittens_answers_core.services.memory.repositories.backup_mixin import MemoryBackUpMixin
+from kittens_answers_core.models import User
+from kittens_answers_core.repositories.base.user import BaseUserRepository
+from kittens_answers_core.repositories.memory.backup_mixin import MemoryBackUpMixin
 
 
 class MemoryUserServices(BaseUserRepository, MemoryBackUpMixin[User]):

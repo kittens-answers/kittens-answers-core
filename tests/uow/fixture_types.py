@@ -3,8 +3,8 @@ from typing import Protocol, TypeAlias, TypedDict
 from uuid import UUID
 
 from kittens_answers_core.models import Answer, Question, QuestionTypes, User
-from kittens_answers_core.services.db.uow import SQLAlchemyUnitOfWork
-from kittens_answers_core.services.memory.uow import MemoryUnitOfWork
+from kittens_answers_core.uow.db import SQLAlchemyUnitOfWork
+from kittens_answers_core.uow.memory import MemoryUnitOfWork
 
 UOWTypes: TypeAlias = MemoryUnitOfWork | SQLAlchemyUnitOfWork
 

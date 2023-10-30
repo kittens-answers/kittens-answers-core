@@ -4,14 +4,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from kittens_answers_core.models import Question, QuestionTypes
-from kittens_answers_core.services.base.repositories.question import (
-    BaseQuestionRepository,
-)
-from kittens_answers_core.services.db.models import DBQuestion, DBRootQuestion
-from kittens_answers_core.services.errors import (
+from kittens_answers_core.errors import (
     QuestionAlreadyExistError,
     QuestionDoesNotExistError,
+)
+from kittens_answers_core.models import Question, QuestionTypes
+from kittens_answers_core.models.db_models import DBQuestion, DBRootQuestion
+from kittens_answers_core.repositories.base.question import (
+    BaseQuestionRepository,
 )
 
 

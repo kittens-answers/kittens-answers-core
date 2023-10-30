@@ -6,9 +6,9 @@ from mimesis import Field
 from mimesis.keys import maybe
 
 from kittens_answers_core.models import Answer, Question, QuestionTypes, User
-from kittens_answers_core.services.db.models import Base
-from kittens_answers_core.services.db.uow import SQLAlchemyUnitOfWork
-from kittens_answers_core.services.memory.uow import MemoryUnitOfWork
+from kittens_answers_core.models.db_models import Base
+from kittens_answers_core.uow.db import SQLAlchemyUnitOfWork
+from kittens_answers_core.uow.memory import MemoryUnitOfWork
 from tests.uow.fixture_types import (
     AnswerDataDict,
     AnswerDataFactory,

@@ -1,10 +1,10 @@
 from types import TracebackType
 from typing import Self, TypeAlias
 
-from kittens_answers_core.services.base.uow import BaseUnitOfWork
-from kittens_answers_core.services.memory.repositories.answer import MemoryAnswerServices
-from kittens_answers_core.services.memory.repositories.question import MemoryQuestionServices
-from kittens_answers_core.services.memory.repositories.user import MemoryUserServices
+from kittens_answers_core.repositories.memory.answer import MemoryAnswerServices
+from kittens_answers_core.repositories.memory.question import MemoryQuestionServices
+from kittens_answers_core.repositories.memory.user import MemoryUserServices
+from kittens_answers_core.uow.base import BaseUnitOfWork
 
 MemoryServices: TypeAlias = MemoryUserServices | MemoryQuestionServices | MemoryAnswerServices
 
