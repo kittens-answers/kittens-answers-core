@@ -27,3 +27,12 @@ class Question(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_QUESTION_TEXT_LENGTH)
     options: set[str]
     extra_options: set[str]
+
+
+class Answer(BaseModel):
+    uid: UUID4 = Field(default_factory=uuid4)
+    creator: UUID4
+    question_uid: UUID4
+    answer: list[str]
+    extra_answer: list[str]
+    is_correct: bool

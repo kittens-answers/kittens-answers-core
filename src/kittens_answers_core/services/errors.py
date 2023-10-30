@@ -16,3 +16,11 @@ class QuestionAlreadyExistError(ServiceError):
 
 class QuestionDoesNotExistError(ServiceError):
     ...
+
+
+class AnswerAlreadyExistError(ServiceError):
+    ...
+
+
+class AnswerDoesNotExistError(ServiceError):
+    ...

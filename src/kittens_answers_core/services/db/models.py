@@ -37,3 +37,15 @@ class DBQuestion(Base):
     extra_options: Mapped[list[str]] = mapped_column(ARRAY(TEXT()))
     root_question_uid: Mapped[UUID] = mapped_column(ForeignKey("root_questions.root_uid"))
     root_question: Mapped[DBRootQuestion] = relationship(back_populates="questions")
+
+
+class DBAnswer(Base):
+    __tablename__ = "answers"
+    __table_args__ = (UniqueConstraint("question_uid", "answer", "extra_answer", "is_correct"),)
+
+    uid: Mapped[UUID] = mapped_column(primary_key=True)
+    creator_id: Mapped[UUID] = mapped_column(ForeignKey("users.uid"))
+    question_uid: Mapped[UUID] = mapped_column(ForeignKey("questions.uid"))
+    answer: Mapped[list[str]] = mapped_column(ARRAY(TEXT()))
+    extra_answer: Mapped[list[str]] = mapped_column(ARRAY(TEXT()))
+    is_correct: Mapped[bool]
